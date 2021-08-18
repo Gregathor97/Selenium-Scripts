@@ -1,0 +1,107 @@
+# Imports
+from selenium import webdriver
+
+# Creates a PATH to driver and opens Testing page.
+PATH = "C:\Drivers\chromedriver.exe"
+driver = webdriver.Chrome(PATH)
+driver.get("http://automation.digitaldreamforge.tools")
+
+
+# Variables
+name = "Gregory Goldman"
+email = "ggoldman@ddfmail.com"
+text = "Oranges"
+text_2 = "Apples"
+text_3 = "Grapes"
+text_4 = "Lemons"
+text_5 = "Bananas"
+gathered_list = []
+correct_list = [name, email, text, text_2, text_3, text_4, text_5]
+
+
+# Functions
+def fill_fields():
+    driver.find_element_by_id("name_tf").send_keys(name)
+    driver.find_element_by_id("email_tf").send_keys(email)
+    driver.find_element_by_id("field_1_tf").send_keys(text)
+    driver.find_element_by_id("field_2_tf").send_keys(text_2)
+    driver.find_element_by_id("field_3_tf").send_keys(text_3)
+    driver.find_element_by_id("field_4_tf").send_keys(text_4)
+    driver.find_element_by_id("field_5_tf").send_keys(text_5)
+
+
+def go_and_back():
+    driver.find_element_by_class_name("MuiButton-label").click()
+
+
+def read():
+    gathered_list.append(driver.find_element_by_id("name_textBox").get_attribute('value'))
+    gathered_list.append(driver.find_element_by_id("email_textBox").get_attribute('value'))
+    gathered_list.append(driver.find_element_by_id("field_1_textBox").get_attribute('value'))
+    gathered_list.append(driver.find_element_by_id("field_2_textBox").get_attribute('value'))
+    gathered_list.append(driver.find_element_by_id("field_3_textBox").get_attribute('value'))
+    gathered_list.append(driver.find_element_by_id("field_4_textBox").get_attribute('value'))
+    gathered_list.append(driver.find_element_by_id("field_5_textBox").get_attribute('value'))
+
+
+def reset_list():
+    gathered_list.clear()
+
+
+def clear_file():
+    open("text_file.csv", "w").close()
+
+
+def cross_examine():
+    if gathered_list == correct_list:
+        print("\033[1;32;40mMATCH\033[1;37;40m")
+    else:
+        print("\n\033[1;31;40mMISSPELLING FOUND\033[1;37;40m")
+        print("FLAWED INPUTS:", gathered_list)
+        print("CORRECT INPUTS:", correct_list)
+    for j in range(len(gathered_list)):
+        if gathered_list[j] == correct_list[j]:
+            pass
+        else:
+            print("Incorrect Word:", gathered_list[j])
+            text_file = open("text_file.csv", "a+")
+            text_file.write("Expected:, ")
+            text_file.write(correct_list[j])
+            text_file.write(",Got:, ")
+            text_file.write(gathered_list[j])
+
+            for letter in range(len(gathered_list[j])):
+                if gathered_list[j][letter] not in correct_list[j]:
+                    text_file.write(",Error Found at letter: ")
+                    text_file.write(str(letter + 1))
+                    text_file.write(",Letter not recognized:,")
+                    text_file.write(gathered_list[j][letter])
+            text_file.write("\n")
+            text_file.close()
+    print()
+    print()
+
+
+def cycle():
+    fill_fields()
+    go_and_back()
+    read()
+    cross_examine()
+    reset_list()
+    go_and_back()
+
+
+# Loop 3 times.
+i = 0
+clear_file()
+while i < 3:
+    cycle()
+    twenty = driver.find_element_by_xpath("html/body/div/div/fieldset/div/label[2]").click()
+    cycle()
+    fifty = driver.find_element_by_xpath("html/body/div/div/fieldset/div/label[3]").click()
+    cycle()
+    hundred = driver.find_element_by_xpath("html/body/div/div/fieldset/div/label[4]").click()
+    cycle()
+    print("\033[0;30;47m\nITERATION COMPLETED\n")
+    i += 1
+driver.quit()
